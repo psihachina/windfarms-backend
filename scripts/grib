@@ -1,0 +1,3 @@
+#!/bin/bash
+wgrib2 ~/work/src/github.com/psihachina/windfarms-backend/assets/gribfile.grib -lola $1 $2 ~/work/src/github.com/psihachina/windfarms-backend/assets/wfilter.gbr grib
+
