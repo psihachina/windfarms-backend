@@ -42,12 +42,11 @@ func (r *WindfarmPostgres) Create(userID string, windfarm models.Windfarm) (stri
 		windfarm.RangeToRoad, windfarm.RangeToCityLine,
 		windfarm.CityLongitude, windfarm.CityLatitude, windfarm.Description)
 	if err := row.Scan(&id); err != nil {
-		tx.Rollback()
 		return "", err
 	}
 
-	createUsersListQuery := fmt.Sprintf("INSERT INTO %s (user_id, windfarm_id) VALUES($1, $2) RETURNING users_windfarms_id", usersWindfarmsTable)
-	_, err = tx.Exec(createUsersListQuery, userID, id)
+	createUsersWindfarmsQuery := fmt.Sprintf("INSERT INTO %s (user_id, windfarm_id) VALUES($1, $2) RETURNING users_windfarms_id", usersWindfarmsTable)
+	_, err = tx.Exec(createUsersWindfarmsQuery, userID, id)
 	if err != nil {
 		tx.Rollback()
 		return "", err

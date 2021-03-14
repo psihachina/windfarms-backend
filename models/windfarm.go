@@ -8,7 +8,7 @@ import (
 
 type Windfarm struct {
 	WindfarmID      string         `json:"windfarmId,omitempty" db:"windfarm_id"`
-	WindfarmName    string         `json:"windfarmName" db:"windfarm_name"`
+	WindfarmName    string         `json:"windfarmName" db:"windfarm_name" validate:"required"`
 	Polygon         pgtype.Polygon `json:"polygon,string" db:"polygon"`
 	Longitude       float64        `json:"windfarmLongitude" db:"longitude"`
 	Latitude        float64        `json:"windfarmLatitude" db:"latitude"`
