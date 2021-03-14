@@ -21,7 +21,7 @@ func NewWindsPostgres(db *sqlx.DB) *WindsPostgres {
 	}
 }
 
-// Create - ...
+// Create - wind data recording function database.
 func (r *WindsPostgres) Create(userID string, windfarmID string, winds []models.Wind) error {
 
 	var values string
@@ -37,6 +37,7 @@ func (r *WindsPostgres) Create(userID string, windfarmID string, winds []models.
 			wind.WindDirection, wind.Humidity, wind.Altitude)
 	}
 
+	// Remove the last comma, otherwise there will be a SQL syntax error.
 	values = values[0 : len(values)-1]
 
 	createWeatherQuery := fmt.Sprintf(`INSERT INTO %s (windfarm_id, date, time, temperature,
@@ -53,6 +54,7 @@ func (r *WindsPostgres) Create(userID string, windfarmID string, winds []models.
 	return nil
 }
 
+// GetAll - function of getting all available wind history in a wind farm from a database.
 func (r *WindsPostgres) GetAll(userID string, windfarmID string) ([]models.Wind, error) {
 	var winds []models.Wind
 
