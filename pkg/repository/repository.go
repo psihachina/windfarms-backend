@@ -11,12 +11,22 @@ type Authorization interface {
 	GetUser(username, password string) (models.User, error)
 }
 
+// Windfarms - ...
 type Windfarms interface {
 	Create(userID string, item models.Windfarm) (string, error)
 	GetAll(userID string) ([]models.Windfarm, error)
 	GetByID(userID, windfarmID string) (models.Windfarm, error)
 	Delete(userID string, windfarmID string) error
 	Update(userID string, windfarmID string, input models.UpdateWindfarmInput) error
+}
+
+// Turbines - ...
+type Turbines interface {
+	Create(userID string, turbine models.Turbine, outputs models.Outputs) (string, error)
+	GetAll(userID string) ([]models.Turbine, error)
+	GetByID(userID, turbineID string) (models.Turbine, error)
+	Delete(userID string, turbineID string) error
+	Update(userID string, turbineID string, input models.UpdateTurbineInput) error
 }
 
 // Winds - ...
@@ -30,6 +40,7 @@ type Repository struct {
 	Authorization
 	Windfarms
 	Winds
+	Turbines
 }
 
 // NewRepository - ...
@@ -38,5 +49,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Authorization: NewAuthPostgres(db),
 		Windfarms:     NewWindfarmPostgres(db),
 		Winds:         NewWindsPostgres(db),
+		Turbines:      NewTurbinePostgres(db),
 	}
 }
