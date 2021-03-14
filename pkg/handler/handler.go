@@ -48,6 +48,15 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			}
 		}
 
+		tubines := api.Group("/turbines")
+		{
+			tubines.POST("/", h.createTurbine)
+			tubines.GET("/", h.getAllTurbines)
+			tubines.GET("/:id", h.getTurbineID)
+			tubines.PUT("/:id", h.updateTurbine)
+			tubines.DELETE("/:id", h.deleteTurbine)
+		}
+
 	}
 
 	return router
