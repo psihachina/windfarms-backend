@@ -88,14 +88,15 @@ func randomWindfarm(emptyName bool) models.Windfarm {
 		WindfarmName: name,
 		Polygon: pgtype.Polygon{
 			P: []pgtype.Vec2{
-				pgtype.Vec2{
+				{
 					X: float64(utils.RandomInt(1, 1000)),
 					Y: float64(utils.RandomInt(1, 1000)),
 				},
-				pgtype.Vec2{
+				{
 					X: float64(utils.RandomInt(1, 1000)),
 					Y: float64(utils.RandomInt(1, 1000)),
-				}, pgtype.Vec2{
+				},
+				{
 					X: float64(utils.RandomInt(1, 1000)),
 					Y: float64(utils.RandomInt(1, 1000)),
 				},

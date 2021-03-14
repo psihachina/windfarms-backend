@@ -101,7 +101,7 @@ func randomTurbine(emptyName bool) models.Turbine {
 func randomOutputs() models.Outputs {
 	return models.Outputs{
 		Outputs: []models.Output{
-			models.Output{
+			{
 				Production: float64(utils.RandomInt(1, 1000)),
 			},
 		},
