@@ -9,7 +9,6 @@ install:
 rundb:
 	docker run --name=todo-db -e POSTGRES_PASSWORD='2210' -p 5436:5432 -d --rm postgres
 stopdb:
-	docker stop todo-db
 	migrate -path ./schema -database "postgres://postgres:2210@localhost:5436/postgres?sslmode=disable" down
 run:
 	migrate -path ./schema -database "postgres://postgres:2210@localhost:5436/postgres?sslmode=disable" up
