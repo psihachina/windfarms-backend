@@ -36,3 +36,24 @@ CREATE TABLE users_windfarms (
     user_id uuid references users(user_id) on delete cascade not null,
     windfarm_id uuid references windfarms(windfarm_id) on delete cascade not null
 );
+
+CREATE TABLE turbines(
+    turbine_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id uuid references users(user_id) on delete cascade not null,
+    turbine_name VARCHAR(255) NOT NULL,
+    maximum_power DOUBLE PRECISION NOT NULL,
+    max_wind_speed DOUBLE PRECISION NOT NULL,
+    min_wind_speed DOUBLE PRECISION NOT NULL,
+    tower_height DOUBLE PRECISION NOT NULL,
+    number_blades DOUBLE PRECISION NOT NULL,
+    rotor_diameter DOUBLE PRECISION NOT NULL,
+    annual_turbine_maintenance DOUBLE PRECISION  NOT NULL
+);
+
+
+CREATE TABLE outputs(
+    output_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    turbine_id uuid references turbines(turbine_id) on delete cascade not null,
+    speed DOUBLE PRECISION NOT NULL,
+    production DOUBLE PRECISION NOT NULL
+);
