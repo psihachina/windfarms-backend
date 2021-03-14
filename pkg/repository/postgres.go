@@ -11,6 +11,8 @@ const (
 	windfarmsTable      = "windfarms"
 	usersWindfarmsTable = "users_windfarms"
 	windsTable          = "winds"
+	turbinesTable       = "turbines"
+	outputsTable        = "outputs"
 )
 
 // Config ...
@@ -23,10 +25,13 @@ type Config struct {
 	SSLMode  string
 }
 
+func (c *Config) String() string {
+	return fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s", c.Host, c.Port, c.Username, c.DBName, c.Password, c.SSLMode)
+}
+
 //NewPostgresDB ...
-func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
-	db, err := sqlx.Open("pgx", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
-		cfg.Host, cfg.Port, cfg.Username, cfg.DBName, cfg.Password, cfg.SSLMode))
+func NewPostgresDB(cfg string) (*sqlx.DB, error) {
+	db, err := sqlx.Open("pgx", cfg)
 
 	if err != nil {
 		return nil, err

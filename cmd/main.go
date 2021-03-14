@@ -26,14 +26,16 @@ func main() {
 		logrus.Fatalf("error loading env virables: %s", err.Error())
 	}
 
-	db, err := repository.NewPostgresDB(repository.Config{
+	cfg := repository.Config{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
 		DBName:   viper.GetString("db.dbname"),
 		SSLMode:  viper.GetString("db.sslmode"),
 		Password: os.Getenv("DB_PASSWORD"),
-	})
+	}
+
+	db, err := repository.NewPostgresDB(cfg.String())
 
 	if err != nil {
 		logrus.Fatalf("failed to initialize db: %s", err.Error())
