@@ -12,7 +12,6 @@ env:
   REGISTRY: "registry.windfarms.ru"
   IMAGE_NAME: "windfarms-backend"
   CONTAINER_NAME: "windfarms-backend"
-  ENV_FILE_PATH: "./windfarms-backend/.env.prod"
   LOGS_PATH: "/root/windfarms-backend/api/logs/prod"
 
 
@@ -44,7 +43,7 @@ jobs:
         run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
 
       - name: Log in to Container Registry
-        run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login --username psihachina --password-stdin $REGISTRY
+        run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login --username ${{ secrets.REGISTRY_USERNAME }} --password-stdin $REGISTRY
 
       - name: Push image to Container Registry
         run: docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
@@ -60,26 +59,23 @@ jobs:
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSHKEY }}
-        port: ${{ secrets.PORT }}
+        password: ${{ secrets.PASSWORD }}
         envs: IMAGE_NAME, REGISTRY, GITHUB_SHA, CONTAINER_NAME
         script: |
             # Login into Registry
-            docker login -u ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -p ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} $(echo $REGISTRY)
+            echo ${{ secrets.REGISTRY_PASSWORD }} | docker login --username ${{ secrets.REGISTRY_USERNAME }} --password-stdin $(echo REGISTRY)
             # Set env variables
             export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            export ACCESS_KEY=${{ secrets.ACCESS_KEY }}
-            export SECRET_KEY=${{ secrets.SECRET_KEY }}
+            export POSTGRES_USERNAME=${{ secrets.POSTGRES_USERNAME }}
             # Stop running container
             docker stop $(echo $CONTAINER_NAME)
             # Remove old container
             docker rm $(echo $CONTAINER_NAME)
             # Run a new container from a new image
-            docker run --env-file $(echo $ENV_FILE_PATH) \
-            -v $(echo $LOGS_PATH):/logs -d \
+            docker run -v $(echo $LOGS_PATH):/logs -d \
             --restart always \
-            --publish 8000:8000 \
+            --publish 8002:8002 \
             --name $(echo $CONTAINER_NAME) \
-            --link=jewerly-db:db \
+            --link=windfarms-db:db \
             $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
 
