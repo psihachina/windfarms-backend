@@ -45,6 +45,7 @@ jobs:
           registry: registry.windfarms.ru
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
+          logout: false
 
       - name: Docker meta
         id: docker_meta
@@ -55,7 +56,7 @@ jobs:
             windfarms-backend
           # add git short SHA as Docker tag
           tag-sha: true
-          
+
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
