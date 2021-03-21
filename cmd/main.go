@@ -22,8 +22,10 @@ func main() {
 		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
 
-	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("error loading env virables: %s", err.Error())
+	if os.Getenv("DB_PASSWORD") == "" {
+		if err := godotenv.Load(); err != nil {
+			logrus.Fatalf("error loading env virables: %s", err.Error())
+		}
 	}
 
 	cfg := repository.Config{
