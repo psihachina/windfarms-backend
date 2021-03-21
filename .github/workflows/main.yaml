@@ -51,6 +51,7 @@ jobs:
   deploy:
    runs-on: ubuntu-latest
    if: github.event_name == 'push'
+   if: github.sha ==  $GITHUB_SHA
    needs: build_and_push
 
    steps:
