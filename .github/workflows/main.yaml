@@ -63,7 +63,7 @@ jobs:
         envs: IMAGE_NAME, REGISTRY, GITHUB_SHA, CONTAINER_NAME
         script: |
             # Login into Registry
-            echo ${{ secrets.REGISTRY_PASSWORD }} | docker login --username ${{ secrets.REGISTRY_USERNAME }} --password-stdin $(echo REGISTRY)
+            echo ${{ secrets.REGISTRY_PASSWORD }} | docker login --username ${{ secrets.REGISTRY_USERNAME }} --password-stdin $(echo $REGISTRY)
             # Set env variables
             export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             export POSTGRES_USERNAME=${{ secrets.POSTGRES_USERNAME }}
