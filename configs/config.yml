@@ -4,6 +4,6 @@ db:
     username: "psihachina"
     password: "2210"
     host:     "db"
-    port:     "5436"
+    port:     "5432"
     dbname:   "db"
     sslmode:  "disable"
