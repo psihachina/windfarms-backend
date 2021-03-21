@@ -39,6 +39,13 @@ jobs:
       - name: Checkout master
         uses: actions/checkout@v2
 
+      - name: Login to GitHub Packages Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: registry.windfarms.ru
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
       - name: Build container image
         run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
 
@@ -48,10 +55,16 @@ jobs:
       - name: Push image to Container Registry
         run: docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
 
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
+
   deploy:
    runs-on: ubuntu-latest
    if: github.event_name == 'push'
-   if: github.sha ==  $GITHUB_SHA
    needs: build_and_push
 
    steps:
