@@ -46,9 +46,6 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Build container image
-        run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
-
       - name: Docker meta
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
@@ -58,13 +55,7 @@ jobs:
             windfarms-backend
           # add git short SHA as Docker tag
           tag-sha: true
-
-      - name: Log in to Container Registry
-        run: echo ${{ secrets.REGISTRY_PASSWORD }} | docker login --username ${{ secrets.REGISTRY_USERNAME }} --password-stdin $REGISTRY
-
-      - name: Push image to Container Registry
-        run: docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
-
+          
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
