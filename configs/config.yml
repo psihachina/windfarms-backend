@@ -1,9 +1,9 @@
 port: "3000"
 
 db:
-    username: "postgres"
+    username: "psihachina"
     password: "2210"
-    host:     "localhost"
+    host:     "db"
     port:     "5436"
     dbname:   "db"
     sslmode:  "disable"
