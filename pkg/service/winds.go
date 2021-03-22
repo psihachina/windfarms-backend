@@ -40,13 +40,13 @@ func (s *WindsService) Create(userID string, windfarmID string) error {
 	}
 
 	if err := exec.Command("wgrib2",
-		"./assets/wfilter.gbr",
+		"~/weather/wfilter.gbr",
 		"-csv",
-		"./assets/wfilter.csv").Run(); err != nil {
+		"~/weather/wfilter.csv").Run(); err != nil {
 		return err
 	}
 
-	csvfile, err := os.Open("./assets/wfilter.csv")
+	csvfile, err := os.Open("~/weather/wfilter.csv")
 	if err != nil {
 		return err
 	}
