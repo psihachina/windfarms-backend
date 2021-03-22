@@ -78,7 +78,7 @@ jobs:
             --publish 8002:8002 \
             --name $(echo $CONTAINER_NAME) \
             --link=windfarms-db:db \
-            -e DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            -e DB_USERNAME=${{ secrets.POSTGRES_USERNAME }}
+            -e DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+            -e DB_USERNAME=${{ secrets.POSTGRES_USERNAME }} \
             $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
 
