@@ -11,8 +11,6 @@ RUN CGO_ENABLE=0 GOOS=linux go build -o ./.bin/app ./cmd/main.go
 
 FROM alpine:latest
 
-ENV DB_PASSWORD=1234
-
 RUN apk --no-cache add ca-certificates 
 WORKDIR /root/
 

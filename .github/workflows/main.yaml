@@ -68,9 +68,6 @@ jobs:
         script: |
             # Login into Registry
             echo ${{ secrets.REGISTRY_PASSWORD }} | docker login --username ${{ secrets.REGISTRY_USERNAME }} --password-stdin $(echo $REGISTRY)
-            # Set env variables
-            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            export POSTGRES_USERNAME=${{ secrets.POSTGRES_USERNAME }}
             # Stop running container
             docker stop $(echo $CONTAINER_NAME)
             # Remove old container
@@ -81,5 +78,7 @@ jobs:
             --publish 8002:8002 \
             --name $(echo $CONTAINER_NAME) \
             --link=windfarms-db:db \
+            -e DB_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            -e DB_USERNAME=${{ secrets.POSTGRES_USERNAME }}
             $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
 

@@ -1,8 +1,6 @@
 port: "3000"
 
 db:
-    username: "psihachina"
-    password: "2210"
     host:     "db"
     port:     "5432"
     dbname:   "db"
