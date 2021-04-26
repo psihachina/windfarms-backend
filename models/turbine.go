@@ -7,15 +7,15 @@ import (
 type Turbine struct {
 	TurbineID                string   `json:"turbineID,omitempty" db:"turbine_id"`
 	UserID                   string   `json:"userID" db:"user_id"`
-	TurbineName              string   `json:"turbine_name" db:"turbine_name"`
-	MaximumPower             float64  `json:"maximum_power" db:"maximum_power"`
-	MaxWindSpeed             float64  `json:"max_wind_speed" db:"max_wind_speed"`
-	MinWindSpeed             float64  `json:"min_wind_speed" db:"min_wind_speed"`
-	Blades                   int      `json:"number_blades" db:"number_blades"`
-	TowerHeight              float64  `json:"tower_height" db:"tower_height"`
-	RotorDiameter            float64  `json:"rotor_diameter" db:"rotor_diameter"`
-	AnnualTurbineMaintenance float64  `json:"annual_turbine_maintenance" db:"annual_turbine_maintenance"`
-	Outputs                  []Output `json:"outputs" db:"outputs"`
+	TurbineName              string   `json:"turbine_name" db:"turbine_name" binding:"required"`
+	MaximumPower             float64  `json:"maximum_power" db:"maximum_power" binding:"required"`
+	MaxWindSpeed             float64  `json:"max_wind_speed" db:"max_wind_speed" binding:"required"`
+	MinWindSpeed             float64  `json:"min_wind_speed" db:"min_wind_speed" binding:"required"`
+	Blades                   int      `json:"number_blades" db:"number_blades" binding:"required"`
+	TowerHeight              float64  `json:"tower_height" db:"tower_height" binding:"required"`
+	RotorDiameter            float64  `json:"rotor_diameter" db:"rotor_diameter" binding:"required"`
+	AnnualTurbineMaintenance float64  `json:"annual_turbine_maintenance" db:"annual_turbine_maintenance" binding:"required"`
+	Outputs                  []Output `json:"outputs" db:"outputs" binding:"required"`
 }
 
 // Outputs struct only to get data from the body
