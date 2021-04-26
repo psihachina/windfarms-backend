@@ -19,11 +19,11 @@ func (h *Handler) createTurbine(c *gin.Context) {
 	var inputOutputs models.Outputs
 
 	if err := c.ShouldBindBodyWith(&inputTurbine, binding.JSON); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
 	if err := c.ShouldBindBodyWith(&inputOutputs, binding.JSON); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
 	id, err := h.services.Turbines.Create(userID, inputTurbine, inputOutputs)
