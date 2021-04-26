@@ -11,5 +11,4 @@ rundb:
 stopdb:
 	migrate -path ./schema -database "postgres://postgres:2210@localhost:5436/postgres?sslmode=disable" down
 run:
-	migrate -path ./schema -database "postgres://postgres:2210@localhost:5436/postgres?sslmode=disable" up
 	go run cmd/main.go
