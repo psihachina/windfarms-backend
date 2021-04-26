@@ -33,6 +33,7 @@ type Turbines interface {
 type Winds interface {
 	Create(userID string, windfarmID string, winds []models.Wind) error
 	GetAll(userID string, windfarmID string) ([]models.Wind, error)
+	GetWindForChart(userID, windfarmID, from, to string, height int) ([]models.Wind, error)
 }
 
 // Repository - ...

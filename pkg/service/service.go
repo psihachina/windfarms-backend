@@ -34,6 +34,8 @@ type Turbines interface {
 type Winds interface {
 	Create(userID string, windfarmID string) error
 	GetAll(userID, windfarmID string) ([]models.Wind, error)
+	GetWindForChart(userID, windfarmID, from, to string, height int) (models.ChartData, error)
+	GetWindForTable(userID, windfarmID string) (models.TableData, error)
 }
 
 // Service - ...

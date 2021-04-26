@@ -73,7 +73,7 @@ func (r *TurbinePostgres) GetAll(userID string) ([]models.Turbine, error) {
 	query := fmt.Sprintf(`SELECT * FROM %s WHERE user_id = $1`, turbinesTable)
 	err := r.db.Select(&turbines, query, userID)
 
-	for index, _ := range turbines {
+	for index := range turbines {
 		var outputs []models.Output
 		query = fmt.Sprintf(`SELECT * FROM %s WHERE turbine_id = $1`, outputsTable)
 		err = r.db.Select(&outputs, query, turbines[index].TurbineID)
@@ -90,6 +90,9 @@ func (r *TurbinePostgres) GetByID(userID string, turbineID string) (models.Turbi
 
 	query := fmt.Sprintf(`SELECT * FROM %s  WHERE user_id = $1 AND turbine_id = $2`, turbinesTable)
 	err := r.db.Get(&turbine, query, userID, turbineID)
+	if err != nil {
+		return turbine, err
+	}
 
 	query = fmt.Sprintf(`SELECT o.* FROM %s o JOIN %s t ON t.turbine_id = o.turbine_id 
 						  WHERE t.user_id = $1 AND o.turbine_id = $2`, outputsTable, turbinesTable)

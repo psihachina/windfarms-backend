@@ -42,9 +42,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			{
 				winds.POST("/", h.createWinds)
 				winds.GET("/", h.getAllWinds)
-				//weather.GET("/:id", h.getWeatherByID)
-				//weather.PUT("/:id", h.updateWeather)
-				//weather.DELETE("/:id", h.deleteWeather)
+				winds.GET("/chart", h.getChartData)
+				winds.GET("/table", h.getTableData)
 			}
 		}
 

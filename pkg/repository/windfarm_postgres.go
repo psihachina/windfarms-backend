@@ -29,7 +29,9 @@ func (r *WindfarmPostgres) Create(userID string, windfarm models.Windfarm) (stri
 
 	var id string
 	polygon, err := windfarm.Polygon.Value()
-	fmt.Println("polygon: ", polygon)
+	if err != nil {
+		return "", err
+	}
 
 	createWindfarmQuery := fmt.Sprintf(`
 		INSERT INTO %s (windfarm_name, polygon, longitude,
