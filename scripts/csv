@@ -1,0 +1,9 @@
+#!/bin/bash
+echo $HOME
+if [ ! -d "$HOME/weather" ]
+then
+echo "directory not found" ; exit 1
+else
+wgrib2 $HOME/weather/filterSpeed.grib -csv $HOME/weather/filterSpeed.csv
+wgrib2 $HOME/weather/filterDirection.grib -csv $HOME/weather/filterDirection.csv
+fi

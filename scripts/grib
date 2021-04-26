@@ -1,3 +1,9 @@
 #!/bin/bash
-wgrib2 ~/weather/gribfile.grib -lola $1 $2 ~/weather/wfilter.gbr grib
-
+echo $HOME
+if [ ! -d "$HOME/weather" ]
+then
+echo "directory not found" ; exit 1
+else
+wgrib2 $HOME/weather/speed.grib -lola $1 $2 $HOME/weather/filterSpeed.grib grib &&
+wgrib2 $HOME/weather/direction.grib -lola $1 $2 $HOME/weather/filterDirection.grib grib
+fi
