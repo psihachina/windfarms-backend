@@ -45,6 +45,16 @@ func (h *Handler) InitRoutes() *gin.Engine {
 				winds.GET("/chart", h.getChartData)
 				winds.GET("/table", h.getTableData)
 			}
+
+			models := windfarms.Group("/:id/models")
+			{
+				models.POST("/", h.createModel)
+				models.GET("/", h.getAllModels)
+				models.GET("/:model_id/map", h.getModelsMap)
+				models.DELETE("/:model_id", h.deleteModel)
+				//models.PUT("/:model_id", h.updateModel)
+				models.GET("/:model_id", h.getModel)
+			}
 		}
 
 		tubines := api.Group("/turbines")
