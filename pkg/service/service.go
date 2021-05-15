@@ -12,6 +12,16 @@ type Authorization interface {
 	ParseToken(token string) (string, error)
 }
 
+// Models - ...
+type Models interface {
+	Create(userID string, windfarmID string, model models.Model) (string, error)
+	GetAll(userID, windfarmID string) ([]models.Model, error)
+	GetMapData(userID, windfarmID string, modelID string) (models.ModelMap, error)
+	GetByID(userID, windfarmID, modelID string) (models.Model, error)
+	Delete(userID, windfarmID, modelID string) error
+	//Update(userID, windfarmID, modelID string, inputModel models.UpdateModelInput) error
+}
+
 // Windfarms - ...
 type Windfarms interface {
 	Create(userID string, windfarm models.Windfarm) (string, error)
@@ -44,6 +54,7 @@ type Service struct {
 	Windfarms
 	Winds
 	Turbines
+	Models
 }
 
 // NewService - ...
@@ -54,5 +65,6 @@ func NewService(repos *repository.Repository) *Service {
 		Windfarms:     NewWindfarmsService(repos.Windfarms),
 		Winds:         NewWindsService(repos.Winds, windfarmsService),
 		Turbines:      NewTurbinesService(repos.Turbines),
+		Models:        NewModelsService(repos.Models),
 	}
 }
