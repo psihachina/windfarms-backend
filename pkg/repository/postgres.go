@@ -12,7 +12,10 @@ const (
 	usersWindfarmsTable = "users_windfarms"
 	windsTable          = "winds"
 	turbinesTable       = "turbines"
+	productions         = "productions"
 	outputsTable        = "outputs"
+	modelTable          = "models"
+	trubinesModelsTabel = "turbines_models"
 )
 
 // Config ...
