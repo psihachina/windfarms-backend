@@ -9,7 +9,8 @@ import (
 type Windfarm struct {
 	WindfarmID      string         `json:"windfarmId,omitempty" db:"windfarm_id"`
 	WindfarmName    string         `json:"windfarmName" db:"windfarm_name" validate:"required"`
-	Polygon         pgtype.Polygon `json:"polygon,string" db:"polygon"`
+	PolygonDB       pgtype.Polygon `db:"polygon"`
+	PolygonJSON     string         `json:"polygon"`
 	Longitude       float64        `json:"windfarmLongitude" db:"longitude"`
 	Latitude        float64        `json:"windfarmLatitude" db:"latitude"`
 	Capacity        float64        `json:"windfarmCapacity" db:"capacity"`
@@ -18,6 +19,7 @@ type Windfarm struct {
 	RangeToCityLine float64        `json:"rangeToCityLine" db:"range_to_city_line"`
 	CityLatitude    float64        `json:"cityLongitude" db:"city_longitude"`
 	CityLongitude   float64        `json:"cityLatitude" db:"city_latitude"`
+	PolygonRadius   float64        `json:"polygonRadius" db:"polygon_radius"`
 	Description     string         `json:"windfarmDescription" db:"description"`
 }
 

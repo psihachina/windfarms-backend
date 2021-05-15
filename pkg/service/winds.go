@@ -54,7 +54,7 @@ func (s *WindsService) Create(userID string, windfarmID string) error {
 
 	csvfile2, err := os.Open(os.Getenv("HOME") + "/weather/filterDirection.csv")
 	if err != nil {
-		return err 
+		return err
 	}
 
 	r1 := csv.NewReader(csvfile)
