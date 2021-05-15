@@ -20,6 +20,15 @@ type Windfarms interface {
 	Update(userID string, windfarmID string, input models.UpdateWindfarmInput) error
 }
 
+// Models - ...
+type Models interface {
+	Create(userID string, windfarmID string, model models.Model) (string, error)
+	GetAll(userID, windfarmID string) ([]models.Model, error)
+	GetByID(userID, windfarmID, modelID string) (models.Model, error)
+	Delete(userID string, windfarmID string) error
+	//Update(userID, windfarmID, modelID string, input models.UpdateModelInput) error
+}
+
 // Turbines - ...
 type Turbines interface {
 	Create(userID string, turbine models.Turbine, outputs models.Outputs) (string, error)
@@ -42,6 +51,7 @@ type Repository struct {
 	Windfarms
 	Winds
 	Turbines
+	Models
 }
 
 // NewRepository - ...
@@ -51,5 +61,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Windfarms:     NewWindfarmPostgres(db),
 		Winds:         NewWindsPostgres(db),
 		Turbines:      NewTurbinePostgres(db),
+		Models:        NewModelPostgres(db),
 	}
 }
