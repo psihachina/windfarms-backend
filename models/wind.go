@@ -1,6 +1,8 @@
 package models
 
-import "errors"
+import (
+	"errors"
+)
 
 type Wind struct {
 	WeatherID     string  `json:"weather_id,omitempty" db:"wind_id"`
@@ -10,6 +12,11 @@ type Wind struct {
 	WindSpeed     float64 `json:"wind_speed" db:"wind_speed"`
 	WindDirection float64 `json:"wind_direction" db:"wind_direction"`
 	Altitude      float64 `json:"altitude" db:"altitude"`
+}
+
+//
+type WindMap struct {
+	Wind map[string]map[string]map[string]Wind `json:"wind"`
 }
 
 type UpdateWindInput struct {
