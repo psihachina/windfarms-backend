@@ -86,7 +86,7 @@ func randomWindfarm(emptyName bool) models.Windfarm {
 	return models.Windfarm{
 		WindfarmID:   strconv.Itoa(utils.RandomInt(1, 1000)),
 		WindfarmName: name,
-		Polygon: pgtype.Polygon{
+		PolygonDB: pgtype.Polygon{
 			P: []pgtype.Vec2{
 				{
 					X: float64(utils.RandomInt(1, 1000)),
