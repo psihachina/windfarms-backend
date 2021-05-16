@@ -9,9 +9,8 @@ WORKDIR /github.com/psihachina/windfarms-backend
 RUN go mod download && go get -u ./...
 RUN CGO_ENABLE=0 GOOS=linux go build -o ./.bin/app ./cmd/main.go
 
-FROM alpine:latest
+FROM ubuntu:latest
 
-RUN apk --no-cache add ca-certificates 
 WORKDIR /root/
 
 RUN apt-get update && apt-get install -y \
