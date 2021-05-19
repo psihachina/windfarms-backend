@@ -18,7 +18,7 @@ func NewHandler(services *service.Service) *Handler {
 
 //InitRoutes ...
 func (h *Handler) InitRoutes() *gin.Engine {
-	router := gin.New()
+	router := gin.Default()
 
 	router.Use(cors.AllowAll())
 

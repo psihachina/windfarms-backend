@@ -6,7 +6,7 @@ on:
       - master
   pull_request:
     branches:
-     - master
+      - master
 
 env:
   REGISTRY: "545711701255.dkr.ecr.us-east-2.amazonaws.com"
@@ -14,22 +14,21 @@ env:
   CONTAINER_NAME: "windfarms-backend"
   LOGS_PATH: "/root/windfarms-backend/api/logs/prod"
 
-
 jobs:
   test:
-   runs-on: ubuntu-latest
-   steps:
-    - name: Checkout master
-      uses: actions/checkout@v2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v2
 
-    - name: Set up Go 1.15.6
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.15.6
+      - name: Set up Go 1.15.6
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15.6
 
-    - name: Test
-      run: go test ./...
-  
+      - name: Test
+        run: go test ./...
+
   build_and_push:
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
@@ -63,5 +62,5 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: windfarms
           IMAGE_TAG: ${{ github.sha }}
-      # docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
+        # docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
         run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
