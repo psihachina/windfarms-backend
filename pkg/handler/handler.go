@@ -34,6 +34,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		},
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: false,
+		Debug:            true,
 	}))
 
 	auth := router.Group("/auth")
