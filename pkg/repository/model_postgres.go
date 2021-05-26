@@ -2,6 +2,8 @@ package repository
 
 import (
 	"fmt"
+	"log"
+	"sync"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/psihachina/windfarms-backend/models"
@@ -19,44 +21,52 @@ func NewModelPostgres(db *sqlx.DB) *ModelPostgres {
 
 // Create - ..
 func (r *ModelPostgres) Create(userID string, windfarmID string, model models.Model) (string, error) {
-	tx, err := r.db.Begin()
-	if err != nil {
-		return "", err
-	}
+	var wg sync.WaitGroup
 
 	var id string
-	if err != nil {
-		return "", err
-	}
 
 	createModelQuery := fmt.Sprintf(`
 		INSERT INTO %s (model_name, windfarm_id) 
 		VALUES ($1, $2) 
 		RETURNING model_id`, modelTable)
-	row := tx.QueryRow(createModelQuery, model.ModelName, windfarmID)
+	row := r.db.QueryRow(createModelQuery, model.ModelName, windfarmID)
 	if err := row.Scan(&id); err != nil {
 		return "", err
 	}
 
-	var values string
-
 	for _, turbine := range model.Turbines {
-		fmt.Println(turbine.ID)
-		values += fmt.Sprintf(`('%v', '%v', '%v', '%v', '%v'),`,
-			id, turbine.TurbineName, turbine.Latitude, turbine.Latitude, turbine.ID)
+		t := turbine
+		wg.Add(1)
+
+		go func(t models.TurbineModel) {
+			defer wg.Done()
+
+			createTurbineModelQuery := fmt.Sprintf("INSERT INTO %s (turbines_models_id ,model_id, turbine_name, latitude, longitude) VALUES ($1, $2, $3, $4, $5)", trubinesModelsTabel)
+			_, err := r.db.Exec(createTurbineModelQuery, t.TurbineModelID, id, t.TurbineName, t.Latitude, t.Longitude)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			var values string
+
+			for _, production := range t.Productions {
+				values += fmt.Sprintf(`('%v', '%v', '%v', '%v', '%v', '%v'),`,
+					production.Value, production.ICUF, production.WindSpeed, production.Date, production.Time, t.TurbineModelID)
+			}
+
+			values = values[0 : len(values)-1]
+			createProductionsQuery := fmt.Sprintf("INSERT INTO %s (value , icuf, wind_speed, date, time, turbines_models_id) VALUES %s", productions, values)
+
+			_, err = r.db.Exec(createProductionsQuery)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}(t)
 	}
 
-	// Remove the last comma, otherwise there will be a SQL syntax error.
-	values = values[0 : len(values)-1]
+	wg.Wait()
 
-	createOutputsQuery := fmt.Sprintf("INSERT INTO %s (model_id, turbine_name, latitude, longitude, id) VALUES %s", trubinesModelsTabel, values)
-	_, err = tx.Exec(createOutputsQuery)
-	if err != nil {
-		tx.Rollback()
-		return "", err
-	}
-
-	return id, tx.Commit()
+	return id, nil
 }
 
 // GetAll - ...

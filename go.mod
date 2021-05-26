@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/golang/mock v1.4.4
@@ -28,4 +29,5 @@ require (
 	golang.org/x/text v0.3.3 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
+	googlemaps.github.io/maps v1.3.2 // indirect
 )

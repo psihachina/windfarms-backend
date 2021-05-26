@@ -16,7 +16,7 @@ WORKDIR /root/
 RUN apk --no-cache add ca-certificates libc-dev gfortran gcc make
 RUN wget ftp://ftp.cpc.ncep.noaa.gov/wd51we/wgrib2/wgrib2.tgz
 RUN tar -xzvf wgrib2.tgz 
-RUN cd grib2 && export FC=gfortran && export CC=gcc && make
+RUN cd grib2 && export FC=gfortran && export CC=gcc && make && cd wgrib2 && cp wgrib2 /bin/
 
 COPY --from=0 /github.com/psihachina/windfarms-backend/.bin/app .
 COPY --from=0 /github.com/psihachina/windfarms-backend/scripts ./scripts/

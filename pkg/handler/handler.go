@@ -1,11 +1,8 @@
 package handler
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/psihachina/windfarms-backend/pkg/service"
-	cors "github.com/rs/cors/wrapper/gin"
 )
 
 //Handler ...
@@ -22,20 +19,11 @@ func NewHandler(services *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.Default()
 
-	router.Use(cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:8080", "http://windfarms.ru", "https://windfarms.ru"},
-		AllowedMethods: []string{
-			http.MethodHead,
-			http.MethodGet,
-			http.MethodPost,
-			http.MethodPut,
-			http.MethodPatch,
-			http.MethodDelete,
-		},
-		AllowedHeaders:   []string{"*"},
-		AllowCredentials: false,
-		Debug:            true,
-	}))
+	router.Use(
+		gin.Recovery(),
+		gin.Logger(),
+		corsMiddleware,
+	)
 
 	auth := router.Group("/auth")
 	{

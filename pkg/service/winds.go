@@ -37,13 +37,13 @@ func (s *WindsService) Create(userID string, windfarmID string) error {
 		return err
 	}
 
-	if err := exec.Command(os.Getenv("HOME")+"/scripts/grib",
+	if err := exec.Command("./scripts/grib",
 		fmt.Sprintf("%f", windfarm.Longitude)+":1:0.0001",
 		fmt.Sprintf("%f", windfarm.Latitude)+":1:0.0001").Run(); err != nil {
 		return err
 	}
 
-	if err := exec.Command(os.Getenv("HOME") + "/scripts/csv").Run(); err != nil {
+	if err := exec.Command("./scripts/csv").Run(); err != nil {
 		return err
 	}
 

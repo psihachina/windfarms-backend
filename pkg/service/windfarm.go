@@ -18,6 +18,7 @@ func NewWindfarmsService(repo repository.Windfarms) *WindfarmsService {
 
 // Create - ...
 func (s *WindfarmsService) Create(userID string, windfarm models.Windfarm) (string, error) {
+
 	return s.repo.Create(userID, windfarm)
 }
 

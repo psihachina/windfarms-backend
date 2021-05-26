@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -93,8 +92,6 @@ func (h *Handler) createModel(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
-
-	fmt.Println(inputModel)
 
 	model, err := h.services.Models.Create(userID, windfarmID, inputModel)
 	if err != nil {

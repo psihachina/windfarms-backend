@@ -22,6 +22,7 @@ func (h *Handler) createTurbine(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
+
 	if err := c.ShouldBindBodyWith(&inputOutputs, binding.JSON); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
 		return

@@ -31,14 +31,12 @@ func (r *WindfarmPostgres) Create(userID string, windfarm models.Windfarm) (stri
 
 	createWindfarmQuery := fmt.Sprintf(`
 		INSERT INTO %s (windfarm_name, polygon, longitude,
-		latitude, capacity, range_to_city, range_to_road, range_to_city_line,
-		city_longitude, city_latitude, description, polygon_radius
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING windfarm_id`, windfarmsTable)
+		latitude, capacity, description, polygon_radius, altitude
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING windfarm_id`, windfarmsTable)
 	row := tx.QueryRow(createWindfarmQuery, windfarm.WindfarmName,
 		windfarm.PolygonJSON, windfarm.Longitude,
-		windfarm.Latitude, windfarm.Capacity, windfarm.RangeToCity,
-		windfarm.RangeToRoad, windfarm.RangeToCityLine,
-		windfarm.CityLongitude, windfarm.CityLatitude, windfarm.Description, windfarm.PolygonRadius)
+		windfarm.Latitude, windfarm.Capacity,
+		windfarm.Description, windfarm.PolygonRadius, windfarm.Altitude)
 	if err := row.Scan(&id); err != nil {
 		return "", err
 	}

@@ -7,20 +7,16 @@ import (
 )
 
 type Windfarm struct {
-	WindfarmID      string         `json:"windfarmId,omitempty" db:"windfarm_id"`
-	WindfarmName    string         `json:"windfarmName" db:"windfarm_name" validate:"required"`
-	PolygonDB       pgtype.Polygon `db:"polygon"`
-	PolygonJSON     string         `json:"polygon"`
-	Longitude       float64        `json:"windfarmLongitude" db:"longitude"`
-	Latitude        float64        `json:"windfarmLatitude" db:"latitude"`
-	Capacity        float64        `json:"windfarmCapacity" db:"capacity"`
-	RangeToCity     float64        `json:"rangeToCity" db:"range_to_city"`
-	RangeToRoad     float64        `json:"rangeToRoad" db:"range_to_road"`
-	RangeToCityLine float64        `json:"rangeToCityLine" db:"range_to_city_line"`
-	CityLatitude    float64        `json:"cityLongitude" db:"city_longitude"`
-	CityLongitude   float64        `json:"cityLatitude" db:"city_latitude"`
-	PolygonRadius   float64        `json:"polygonRadius" db:"polygon_radius"`
-	Description     string         `json:"windfarmDescription" db:"description"`
+	WindfarmID    string         `json:"windfarmId,omitempty" db:"windfarm_id"`
+	WindfarmName  string         `json:"windfarmName" db:"windfarm_name" validate:"required"`
+	PolygonDB     pgtype.Polygon `db:"polygon"`
+	PolygonJSON   string         `json:"polygon"`
+	Longitude     float64        `json:"windfarmLongitude" db:"longitude"`
+	Latitude      float64        `json:"windfarmLatitude" db:"latitude"`
+	Capacity      float64        `json:"windfarmCapacity" db:"capacity"`
+	PolygonRadius float64        `json:"polygonRadius" db:"polygon_radius"`
+	Description   string         `json:"windfarmDescription" db:"description"`
+	Altitude      float64        `json:"altitude" db:"altitude"`
 }
 
 type Point struct {

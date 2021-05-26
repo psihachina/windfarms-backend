@@ -37,7 +37,6 @@ func (r *TurbinePostgres) Create(userID string, turbine models.Turbine, outputs 
 		turbine.MaximumPower, turbine.MaxWindSpeed, turbine.MinWindSpeed,
 		turbine.RotorDiameter, turbine.TowerHeight, turbine.Blades,
 		turbine.AnnualTurbineMaintenance)
-	fmt.Println(id)
 	if err := row.Scan(&id); err != nil {
 		tx.Rollback()
 		return "", err
@@ -70,8 +69,8 @@ func (r *TurbinePostgres) Create(userID string, turbine models.Turbine, outputs 
 func (r *TurbinePostgres) GetAll(userID string) ([]models.Turbine, error) {
 	var turbines []models.Turbine
 
-	query := fmt.Sprintf(`SELECT * FROM %s WHERE user_id = $1`, turbinesTable)
-	err := r.db.Select(&turbines, query, userID)
+	query := fmt.Sprintf(`SELECT * FROM %s`, turbinesTable)
+	err := r.db.Select(&turbines, query)
 
 	for index := range turbines {
 		var outputs []models.Output
@@ -88,7 +87,7 @@ func (r *TurbinePostgres) GetByID(userID string, turbineID string) (models.Turbi
 	var turbine models.Turbine
 	var outputs []models.Output
 
-	query := fmt.Sprintf(`SELECT * FROM %s  WHERE user_id = $1 AND turbine_id = $2`, turbinesTable)
+	query := fmt.Sprintf(`SELECT * FROM %s  WHERE user_id = $1 AND turbine_name = $2`, turbinesTable)
 	err := r.db.Get(&turbine, query, userID, turbineID)
 	if err != nil {
 		return turbine, err
@@ -97,7 +96,7 @@ func (r *TurbinePostgres) GetByID(userID string, turbineID string) (models.Turbi
 	query = fmt.Sprintf(`SELECT o.* FROM %s o JOIN %s t ON t.turbine_id = o.turbine_id 
 						  WHERE t.user_id = $1 AND o.turbine_id = $2`, outputsTable, turbinesTable)
 
-	err = r.db.Select(&outputs, query, userID, turbineID)
+	err = r.db.Select(&outputs, query, userID, turbine.TurbineID)
 
 	turbine.Outputs = outputs
 

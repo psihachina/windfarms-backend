@@ -60,11 +60,13 @@ type Service struct {
 // NewService - ...
 func NewService(repos *repository.Repository) *Service {
 	windfarmsService := NewWindfarmsService(repos.Windfarms)
+	turbinesService := NewTurbinesService(repos.Turbines)
+	windsService := NewWindsService(repos.Winds, windfarmsService)
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
 		Windfarms:     NewWindfarmsService(repos.Windfarms),
 		Winds:         NewWindsService(repos.Winds, windfarmsService),
 		Turbines:      NewTurbinesService(repos.Turbines),
-		Models:        NewModelsService(repos.Models),
+		Models:        NewModelsService(repos.Models, turbinesService, windsService),
 	}
 }
