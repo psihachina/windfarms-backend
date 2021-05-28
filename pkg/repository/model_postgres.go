@@ -50,12 +50,12 @@ func (r *ModelPostgres) Create(userID string, windfarmID string, model models.Mo
 			var values string
 
 			for _, production := range t.Productions {
-				values += fmt.Sprintf(`('%v', '%v', '%v', '%v', '%v', '%v'),`,
-					production.Value, production.ICUF, production.WindSpeed, production.Date, production.Time, t.TurbineModelID)
+				values += fmt.Sprintf(`('%v', '%v', '%v', '%v', '%v', '%v', '%v'),`,
+					production.Value, production.ICUF, production.WindSpeed, production.Date, production.Time, t.TurbineModelID, production.Altitude)
 			}
 
 			values = values[0 : len(values)-1]
-			createProductionsQuery := fmt.Sprintf("INSERT INTO %s (value , icuf, wind_speed, date, time, turbines_models_id) VALUES %s", productions, values)
+			createProductionsQuery := fmt.Sprintf("INSERT INTO %s (value , icuf, wind_speed, date, time, turbines_models_id, altitude) VALUES %s", productions, values)
 
 			_, err = r.db.Exec(createProductionsQuery)
 			if err != nil {

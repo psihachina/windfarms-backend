@@ -11,6 +11,8 @@ type Windfarm struct {
 	WindfarmName  string         `json:"windfarmName" db:"windfarm_name" validate:"required"`
 	PolygonDB     pgtype.Polygon `db:"polygon"`
 	PolygonJSON   string         `json:"polygon"`
+	NorthEast     string         `json:"northEast"`
+	SouthWest     string         `json:"southWest"`
 	Longitude     float64        `json:"windfarmLongitude" db:"longitude"`
 	Latitude      float64        `json:"windfarmLatitude" db:"latitude"`
 	Capacity      float64        `json:"windfarmCapacity" db:"capacity"`

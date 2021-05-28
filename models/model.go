@@ -27,6 +27,7 @@ type Production struct {
 	Value          float64 `json:"value,omitempty" db:"value"`
 	WindSpeed      float64 `json:"wind_speed,omitempty" db:"wind_speed"`
 	TurbineModelID string  `json:"turbines_models_id" db:"turbines_models_id"`
+	Altitude       float64 `json:"altitude" db:"altitude"`
 }
 
 type ModelMap struct {

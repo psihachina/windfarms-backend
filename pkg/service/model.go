@@ -64,7 +64,7 @@ func (s *ModelsService) Create(userID string, windfarmID string, model models.Mo
 
 		r := &maps.ElevationRequest{
 			Locations: []maps.LatLng{
-				{Lat: model.Turbines[i].Latitude, Lng: model.Turbines[i].Longitude},
+				{Lat: model.Turbines[i].Longitude, Lng: model.Turbines[i].Latitude},
 			},
 		}
 
@@ -73,11 +73,8 @@ func (s *ModelsService) Create(userID string, windfarmID string, model models.Mo
 			log.Fatal(err)
 		}
 
-		height := turbine.TowerHeight + (model.WindfarmAltitude - elvsRes[0].Elevation)
-
-		fmt.Println(height)
-
-		fmt.Println((model.WindfarmAltitude - elvsRes[0].Elevation))
+		height := model.WindfarmAltitude - elvsRes[0].Elevation + turbine.TowerHeight
+		fmt.Println(model.WindfarmAltitude, elvsRes[0].Elevation, height)
 
 		wg.Add(1)
 
@@ -86,12 +83,14 @@ func (s *ModelsService) Create(userID string, windfarmID string, model models.Mo
 
 			for date := range windMap {
 				for time := range windMap[date] {
-					minAlt, maxAlt, err := getClosestPair(altitudes, turbine.TowerHeight)
+					minAlt, maxAlt, err := getClosestPair(altitudes, height)
 					if err != nil {
 						log.Fatal(err)
 					}
-
-					windSpeed := linearApproximation(turbine.TowerHeight, minAlt, maxAlt, windMap[date][time][fmt.Sprint(maxAlt)].WindSpeed, windMap[date][time][fmt.Sprint(minAlt)].WindSpeed)
+					windSpeed := linearApproximation(height, minAlt, maxAlt, windMap[date][time][fmt.Sprint(maxAlt)].WindSpeed, windMap[date][time][fmt.Sprint(minAlt)].WindSpeed)
+					if minAlt == maxAlt {
+						windSpeed = windMap[date][time][fmt.Sprint(maxAlt)].WindSpeed
+					}
 
 					outputMap := make(map[string]models.Output)
 
@@ -130,6 +129,7 @@ func (s *ModelsService) Create(userID string, windfarmID string, model models.Mo
 						Value:          output,
 						ICUF:           output / turbine.MaximumPower,
 						WindSpeed:      windSpeed,
+						Altitude:       height,
 						TurbineModelID: model.Turbines[i].TurbineModelID,
 					}
 
@@ -202,19 +202,29 @@ func getClosestPair(arr []float64, number float64) (float64, float64, error) {
 	}
 
 	for {
-		if arr[l] > number {
-			res_l = l
+		if l > len(arr)-1 {
+			res_l = len(arr) - 1
 			break
+		} else {
+			if arr[l] > number {
+				res_l = l
+				break
+			}
+			l++
 		}
-		l++
 	}
 
 	for {
-		if arr[r] < number {
-			res_r = r
+		if r < 0 {
+			res_r = 0
 			break
+		} else {
+			if arr[r] < number {
+				res_r = r
+				break
+			}
+			r--
 		}
-		r--
 	}
 
 	return arr[res_l], arr[res_r], nil
