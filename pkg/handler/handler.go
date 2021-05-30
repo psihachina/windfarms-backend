@@ -51,11 +51,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 			models := windfarms.Group("/:id/models")
 			{
-				models.POST("/", h.createModel)
+				models.POST("/:model_id", h.generateModel)
+				models.POST("/", h.createNewModel)
 				models.GET("/", h.getAllModels)
 				models.GET("/:model_id/map", h.getModelsMap)
 				models.DELETE("/:model_id", h.deleteModel)
-				//models.PUT("/:model_id", h.updateModel)
+				models.DELETE("/:model_id/:turbine_id", h.deleteModelTurbine)
+				models.PUT("/:model_id", h.updateModel)
 				models.GET("/:model_id", h.getModel)
 			}
 		}

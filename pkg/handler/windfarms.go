@@ -67,6 +67,7 @@ func (h *Handler) getWindfarmByID(c *gin.Context) {
 }
 
 func (h *Handler) updateWindfarm(c *gin.Context) {
+
 	userID, err := getUserID(c)
 	if err != nil {
 		return
@@ -84,6 +85,7 @@ func (h *Handler) updateWindfarm(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
+
 	if err := h.services.Windfarms.Update(userID, id, input); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/psihachina/windfarms-backend/models"
@@ -59,7 +58,6 @@ func TestAuthPostgres_CreateUser(t *testing.T) {
 
 			err := r.CreateUser(tt.input)
 			if tt.wantErr {
-				fmt.Println(err)
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)

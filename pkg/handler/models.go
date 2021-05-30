@@ -75,7 +75,38 @@ func (h *Handler) getModelsMap(c *gin.Context) {
 	c.JSON(http.StatusOK, model)
 }
 
-func (h *Handler) createModel(c *gin.Context) {
+func (h *Handler) generateModel(c *gin.Context) {
+	userID, err := getUserID(c)
+	if err != nil {
+		return
+	}
+
+	windfarmID := c.Param("id")
+	if windfarmID == "" {
+		newErrorResponse(c, http.StatusBadRequest, "invalid windfarm id param")
+	}
+
+	modelID := c.Param("model_id")
+	if modelID == "" {
+		newErrorResponse(c, http.StatusBadRequest, "invalid windfarm id param")
+	}
+
+	var inputModel models.Model
+
+	if err := c.BindJSON(&inputModel); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+
+	model, err := h.services.Models.GenerateModel(userID, windfarmID, modelID, inputModel)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
+
+	c.JSON(http.StatusOK, model)
+}
+
+func (h *Handler) createNewModel(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {
 		return
@@ -93,7 +124,7 @@ func (h *Handler) createModel(c *gin.Context) {
 		return
 	}
 
-	model, err := h.services.Models.Create(userID, windfarmID, inputModel)
+	model, err := h.services.Models.CreateModel(userID, windfarmID, inputModel)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 	}
@@ -101,36 +132,36 @@ func (h *Handler) createModel(c *gin.Context) {
 	c.JSON(http.StatusOK, model)
 }
 
-// func (h *Handler) updateModel(c *gin.Context) {
-// 	userID, err := getUserID(c)
-// 	if err != nil {
-// 		return
-// 	}
+func (h *Handler) updateModel(c *gin.Context) {
+	userID, err := getUserID(c)
+	if err != nil {
+		return
+	}
 
-// 	windfarmID := c.Param("id")
-// 	if windfarmID == "" {
-// 		newErrorResponse(c, http.StatusBadRequest, "invalid windfarm id param")
-// 	}
+	windfarmID := c.Param("id")
+	if windfarmID == "" {
+		newErrorResponse(c, http.StatusBadRequest, "invalid windfarm id param")
+	}
 
-// 	modelID := c.Param("model_id")
-// 	if modelID == "" {
-// 		newErrorResponse(c, http.StatusBadRequest, "invalid model id param")
-// 	}
+	modelID := c.Param("model_id")
+	if modelID == "" {
+		newErrorResponse(c, http.StatusBadRequest, "invalid model id param")
+	}
 
-// 	var input models.UpdateModelInput
+	var input models.UpdateModelInput
 
-// 	if err := c.BindJSON(&input); err != nil {
-// 		newErrorResponse(c, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	err = h.services.Models.Update(userID, windfarmID, modelID, input)
-// 	if err != nil {
-// 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-// 	}
+	err = h.services.Models.Update(userID, windfarmID, modelID, input)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	}
 
-// 	c.JSON(http.StatusOK, statusResponse{"ok"})
-// }
+	c.JSON(http.StatusOK, statusResponse{"ok"})
+}
 
 func (h *Handler) deleteModel(c *gin.Context) {
 	userID, err := getUserID(c)
@@ -150,6 +181,26 @@ func (h *Handler) deleteModel(c *gin.Context) {
 	}
 
 	err = h.services.Models.Delete(userID, windfarmID, modelID)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{"ok"})
+}
+
+func (h *Handler) deleteModelTurbine(c *gin.Context) {
+	modelID := c.Param("model_id")
+	if modelID == "" {
+		newErrorResponse(c, http.StatusBadRequest, "invalid model id param")
+	}
+
+	turbineModelID := c.Param("turbine_id")
+	if turbineModelID == "" {
+		newErrorResponse(c, http.StatusBadRequest, "invalid model id param")
+	}
+
+	err := h.services.Models.DeleteTurbine(modelID, turbineModelID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

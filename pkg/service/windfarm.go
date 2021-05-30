@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -33,8 +32,6 @@ func (s *WindfarmsService) Create(userID string, windfarm models.Windfarm) (stri
 
 	r := maps.ElevationRequest{}
 
-	fmt.Println(windfarm)
-
 	northEastLng, err := strconv.ParseFloat(strings.Split(windfarm.NorthEast, ",")[1], 64)
 	if err != nil {
 		return "", err
@@ -53,9 +50,7 @@ func (s *WindfarmsService) Create(userID string, windfarm models.Windfarm) (stri
 	}
 
 	stepLng := (northEastLng - southWestLng) / 20
-	fmt.Println("stepLng", stepLng)
 	stepLat := (northEastLat - southWestLat) / 20
-	fmt.Println("stepLat", stepLat)
 
 	for i := 0; i < 20; i++ {
 		for j := 0; j < 20; j++ {
@@ -65,7 +60,6 @@ func (s *WindfarmsService) Create(userID string, windfarm models.Windfarm) (stri
 			})
 		}
 	}
-	fmt.Println("OPS")
 	elevationsResult, err := c.Elevation(context.Background(), &r)
 	if err != nil {
 		return "", err
@@ -73,14 +67,11 @@ func (s *WindfarmsService) Create(userID string, windfarm models.Windfarm) (stri
 
 	avgElv := 0.0
 
-	for i, element := range elevationsResult {
-		fmt.Println(i, element.Elevation)
+	for _, element := range elevationsResult {
 		avgElv += element.Elevation
 	}
 
 	avgElv = avgElv / 400
-
-	fmt.Println(avgElv)
 
 	windfarm.Altitude = avgElv
 

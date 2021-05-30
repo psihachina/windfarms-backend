@@ -111,8 +111,6 @@ func TestHandler_create(t *testing.T) {
 			req := httptest.NewRequest("POST", "/api/turbine/",
 				bytes.NewBufferString(test.inputBody))
 
-			fmt.Println(test.inputBody)
-
 			//Make Request
 			r.ServeHTTP(w, req)
 

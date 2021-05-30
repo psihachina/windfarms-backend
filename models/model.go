@@ -1,6 +1,9 @@
 package models
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"errors"
+)
 
 type Model struct {
 	ModelID          string         `json:"model_id" db:"model_id"`
@@ -16,6 +19,9 @@ type TurbineModel struct {
 	Latitude       float64     `json:"latitude," db:"latitude"`
 	Longitude      float64     `json:"longitude," db:"longitude"`
 	ModelID        string      `json:"model_id" db:"model_id"`
+	X              float64     `json:"x" db:"x"`
+	Y              float64     `json:"y" db:"y"`
+	Z              float64     `json:"z" db:"z"`
 	Productions    Productions `json:"productions" db:"productions"`
 }
 
@@ -39,6 +45,17 @@ type Productions []*Production
 func (ls *Productions) Scan(src interface{}) error {
 	if b, ok := src.([]byte); ok {
 		return json.Unmarshal(b, ls)
+	}
+	return nil
+}
+
+type UpdateModelInput struct {
+	ModelName *string `json:"model_name"`
+}
+
+func (i UpdateModelInput) Validate() error {
+	if i.ModelName == nil {
+		return errors.New("update structure has no values")
 	}
 	return nil
 }

@@ -122,20 +122,16 @@ func (r *TurbinePostgres) Update(userID string, turbineID string, input models.U
 	for i := 0; i < v.NumField(); i++ {
 		if reflect.Indirect(v.Field(i)).IsValid() {
 			setValues = append(setValues, fmt.Sprintf("%s=$%d", v.Type().Field(i).Tag.Get("json"), argID))
-
 			args = append(args, (v.Field(i).Elem().Interface()))
 			argID++
 		}
 	}
-	fmt.Println("setValues:", setValues)
 
 	setQuery := strings.Join(setValues, ", ")
-	fmt.Println("setQuery:", setQuery)
 
 	query := fmt.Sprintf("UPDATE %s SET %s WHERE turbine_id=$%d AND user_id=$%d",
 		turbinesTable, setQuery, argID, argID+1)
 	args = append(args, turbineID, userID)
-	fmt.Println(args)
 
 	logrus.Debugf("updateQuery: %s", query)
 	logrus.Debugf("args: %s", args)

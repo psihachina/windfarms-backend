@@ -22,11 +22,14 @@ type Windfarms interface {
 
 // Models - ...
 type Models interface {
-	Create(userID string, windfarmID string, model models.Model) (string, error)
+	GenerateModel(userID, windfarmID, modelID string, model models.Model) (string, error)
 	GetAll(userID, windfarmID string) ([]models.Model, error)
 	GetByID(userID, windfarmID, modelID string) (models.Model, error)
-	Delete(userID string, windfarmID string) error
-	//Update(userID, windfarmID, modelID string, input models.UpdateModelInput) error
+	GetByIDMap(userID, windfarmID, modelID string) (models.Model, error)
+	Delete(userID, windfarmID, modelID string) error
+	DeleteTurbine(modelID string, modelTurbineID string) error
+	CreateModel(userID string, windfarmID string, model models.Model) (string, error)
+	Update(userID, windfarmID, modelID string, input models.UpdateModelInput) error
 }
 
 // Turbines - ...

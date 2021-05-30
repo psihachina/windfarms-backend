@@ -25,8 +25,12 @@ func NewModelsService(repo repository.Models, turbinesService Turbines, windsSer
 	return &ModelsService{repo: repo, turbinesService: turbinesService, windsService: windsService}
 }
 
-// Create - ...
-func (s *ModelsService) Create(userID string, windfarmID string, model models.Model) (string, error) {
+func (s *ModelsService) CreateModel(userID string, windfarmID string, model models.Model) (string, error) {
+	return s.repo.CreateModel(userID, windfarmID, model)
+}
+
+// GenerateModel - ...
+func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model models.Model) (string, error) {
 
 	c, err := maps.NewClient(maps.WithAPIKey(os.Getenv("GOOGLE_MAPS_API_KEY")))
 	if err != nil {
@@ -74,7 +78,6 @@ func (s *ModelsService) Create(userID string, windfarmID string, model models.Mo
 		}
 
 		height := model.WindfarmAltitude - elvsRes[0].Elevation + turbine.TowerHeight
-		fmt.Println(model.WindfarmAltitude, elvsRes[0].Elevation, height)
 
 		wg.Add(1)
 
@@ -139,7 +142,7 @@ func (s *ModelsService) Create(userID string, windfarmID string, model models.Mo
 		}(i, turbine)
 	}
 	wg.Wait()
-	return s.repo.Create(userID, windfarmID, model)
+	return s.repo.GenerateModel(userID, windfarmID, modelID, model)
 }
 
 // GetAll - ...
@@ -149,7 +152,7 @@ func (s *ModelsService) GetAll(userID, windfarmID string) ([]models.Model, error
 
 // GetMapData - ...
 func (s *ModelsService) GetMapData(userID, windfarmID string, modelID string) (models.ModelMap, error) {
-	model, err := s.repo.GetByID(userID, windfarmID, modelID)
+	model, err := s.repo.GetByIDMap(userID, windfarmID, modelID)
 
 	if err != nil {
 		return models.ModelMap{}, err
@@ -183,13 +186,18 @@ func (s *ModelsService) GetByID(userID, windfarmID, modelID string) (models.Mode
 
 // Delete - ...
 func (s *ModelsService) Delete(userID, windfarmID, modelID string) error {
-	return s.repo.Delete(userID, windfarmID)
+	return s.repo.Delete(userID, windfarmID, modelID)
 }
 
-// Update - ...
-// func (s *ModelsService) Update(userID, windfarmID, modelID string, input models.UpdateModelInput) error {
-// 	return s.repo.Update(userID, windfarmID, modelID, input)
-// }
+// Delete - ...
+func (s *ModelsService) DeleteTurbine(modelID, modelTrubineID string) error {
+	return s.repo.DeleteTurbine(modelID, modelTrubineID)
+}
+
+//Update - ...
+func (s *ModelsService) Update(userID, windfarmID, modelID string, input models.UpdateModelInput) error {
+	return s.repo.Update(userID, windfarmID, modelID, input)
+}
 
 func getClosestPair(arr []float64, number float64) (float64, float64, error) {
 	var res_l, res_r int

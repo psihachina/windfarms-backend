@@ -88,13 +88,10 @@ func (r *WindfarmPostgres) Update(userID string, windfarmID string, input models
 	argID := 1
 
 	v := reflect.ValueOf(input)
-
 	for i := 0; i < v.NumField(); i++ {
 		if reflect.Indirect(v.Field(i)).IsValid() {
 			setValues = append(setValues, fmt.Sprintf("%s=$%d", v.Type().Field(i).Tag.Get("json"), argID))
-			args = append(args, (v.Field(i).Elem().Interface().(string)))
-			vl := v.Field(i).Elem().Interface().(string)
-			fmt.Println(vl)
+			args = append(args, (v.Field(i).Elem().Interface()))
 			argID++
 		}
 	}
@@ -103,8 +100,8 @@ func (r *WindfarmPostgres) Update(userID string, windfarmID string, input models
 
 	query := fmt.Sprintf("UPDATE %s wf SET %s FROM %s uw WHERE wf.windfarm_id = uw.windfarm_id AND uw.windfarm_id=$%d AND uw.user_id=$%d",
 		windfarmsTable, setQuery, usersWindfarmsTable, argID, argID+1)
+
 	args = append(args, windfarmID, userID)
-	fmt.Println(args)
 
 	logrus.Debugf("updateQuery: %s", query)
 	logrus.Debugf("args: %s", args)
