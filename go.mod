@@ -8,6 +8,7 @@ require (
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
+	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551 // indirect
 	github.com/golang/mock v1.4.4
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/go-cmp v0.5.1 // indirect

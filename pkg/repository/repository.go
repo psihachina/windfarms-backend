@@ -41,6 +41,13 @@ type Turbines interface {
 	Update(userID string, turbineID string, input models.UpdateTurbineInput) error
 }
 
+// Users - ...
+type Users interface {
+	GetAll() ([]models.User, error)
+	Delete(email string) error
+	Confirm(email string) error
+}
+
 // Winds - ...
 type Winds interface {
 	Create(userID string, windfarmID string, winds []models.Wind) error
@@ -50,6 +57,7 @@ type Winds interface {
 
 // Repository - ...
 type Repository struct {
+	Users
 	Authorization
 	Windfarms
 	Winds
@@ -65,5 +73,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Winds:         NewWindsPostgres(db),
 		Turbines:      NewTurbinePostgres(db),
 		Models:        NewModelPostgres(db),
+		Users:         NewUserPostgres(db),
 	}
 }

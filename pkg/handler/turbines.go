@@ -53,6 +53,21 @@ func (h *Handler) getAllTurbines(c *gin.Context) {
 	c.JSON(http.StatusOK, winds)
 }
 
+func (h *Handler) getMapTurbines(c *gin.Context) {
+	userID, err := getUserID(c)
+	if err != nil {
+		return
+	}
+
+	winds, err := h.services.Turbines.GetAll(userID)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, winds)
+}
+
 func (h *Handler) getTurbineID(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {

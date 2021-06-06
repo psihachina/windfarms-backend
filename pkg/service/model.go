@@ -32,6 +32,11 @@ func (s *ModelsService) CreateModel(userID string, windfarmID string, model mode
 // GenerateModel - ...
 func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model models.Model) (string, error) {
 
+	turbines, err := s.turbinesService.GetMap(userID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	c, err := maps.NewClient(maps.WithAPIKey(os.Getenv("GOOGLE_MAPS_API_KEY")))
 	if err != nil {
 		log.Fatal(err)
@@ -43,8 +48,6 @@ func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model 
 	}
 
 	windMap := make(map[string]map[string]map[string]models.Wind)
-
-	altitudes := []float64{15, 30, 50, 75, 100, 150, 200}
 
 	for _, item := range winds {
 		if windMap[item.Date] == nil {
@@ -61,38 +64,62 @@ func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model 
 	var wg sync.WaitGroup
 
 	for i := 0; i < workerCount; i++ {
-		turbine, err := s.turbinesService.GetByID(userID, model.Turbines[i].TurbineName)
+		turbine := turbines[model.Turbines[i].TurbineName]
+
+		elevations, err := getElevation(c, model.Turbines[i].Latitude, model.Turbines[i].Longitude)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		r := &maps.ElevationRequest{
-			Locations: []maps.LatLng{
-				{Lat: model.Turbines[i].Longitude, Lng: model.Turbines[i].Latitude},
-			},
-		}
-
-		elvsRes, err := c.Elevation(context.Background(), r)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		height := model.WindfarmAltitude - elvsRes[0].Elevation + turbine.TowerHeight
+		height := model.WindfarmAltitude - elevations[0].Elevation + turbine.TowerHeight
 
 		wg.Add(1)
 
 		go func(i int, turbine models.Turbine) {
 			defer wg.Done()
 
+			var shadingTurbines []shadingTurbine
+
+			for j := 0; j < len(model.Turbines); j++ {
+				if i != j && checkInclude(model.Turbines[i], model.Turbines[j], 3*turbines[model.Turbines[j].TurbineName].RotorDiameter) {
+					shadingTurbines = append(shadingTurbines, shadingTurbine{
+						distance: getDistance(
+							maps.LatLng{
+								Lat: model.Turbines[i].Latitude,
+								Lng: model.Turbines[i].Longitude,
+							},
+							maps.LatLng{
+								Lat: model.Turbines[j].Latitude,
+								Lng: model.Turbines[j].Longitude,
+							}),
+
+						radius:  3 * turbines[model.Turbines[j].TurbineName].RotorDiameter,
+						turbine: model.Turbines[j],
+					})
+				}
+			}
+
 			for date := range windMap {
 				for time := range windMap[date] {
-					minAlt, maxAlt, err := getClosestPair(altitudes, height)
+
+					windSpeed, err := getWindSpeed(height, windMap[date][time])
 					if err != nil {
 						log.Fatal(err)
 					}
-					windSpeed := linearApproximation(height, minAlt, maxAlt, windMap[date][time][fmt.Sprint(maxAlt)].WindSpeed, windMap[date][time][fmt.Sprint(minAlt)].WindSpeed)
-					if minAlt == maxAlt {
-						windSpeed = windMap[date][time][fmt.Sprint(maxAlt)].WindSpeed
+
+					windDirection, err := getWindDirection(height, windMap[date][time])
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					var shading float64
+
+					for j := 0; j < len(shadingTurbines); j++ {
+						alpha := windDirection - math.Atan2(
+							model.Turbines[i].Latitude-shadingTurbines[j].turbine.Latitude,
+							model.Turbines[i].Longitude-shadingTurbines[j].turbine.Longitude,
+						)
+						shading = shadingFactor(alpha, shadingTurbines[j].radius, shadingTurbines[j].distance)
 					}
 
 					outputMap := make(map[string]models.Output)
@@ -115,25 +142,30 @@ func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model 
 						return speed[i] < speed[j]
 					})
 
-					minSpeed, maxSpeed, err := getClosestPair(speed, windSpeed)
+					speedWithShading := math.Round(windSpeed*shading*100) / 100
+
+					minSpeed, maxSpeed, err := getClosestPair(speed, speedWithShading)
 					if err != nil {
 						log.Fatal(err)
 					}
 
-					output := linearApproximation(windSpeed, minSpeed, maxSpeed, outputMap[fmt.Sprint(maxSpeed)].Production, outputMap[fmt.Sprint(minSpeed)].Production)
+					output := linearApproximation(speedWithShading, minSpeed, maxSpeed, outputMap[fmt.Sprint(maxSpeed)].Production, outputMap[fmt.Sprint(minSpeed)].Production)
 
 					if math.IsNaN(output) {
 						output = 0
 					}
 
 					production := models.Production{
-						Time:           time,
-						Date:           date,
-						Value:          output,
-						ICUF:           output / turbine.MaximumPower,
-						WindSpeed:      windSpeed,
-						Altitude:       height,
-						TurbineModelID: model.Turbines[i].TurbineModelID,
+						Time:             time,
+						Date:             date,
+						Value:            output,
+						ICUF:             output / turbine.MaximumPower,
+						WindSpeed:        windSpeed,
+						Altitude:         height,
+						TurbineModelID:   model.Turbines[i].TurbineModelID,
+						WindDirection:    windDirection,
+						Shading:          shading,
+						SpeedWithShading: speedWithShading,
 					}
 
 					model.Turbines[i].Productions = append(model.Turbines[i].Productions, &production)
@@ -199,6 +231,86 @@ func (s *ModelsService) Update(userID, windfarmID, modelID string, input models.
 	return s.repo.Update(userID, windfarmID, modelID, input)
 }
 
+func getElevation(c *maps.Client, lat, lng float64) ([]maps.ElevationResult, error) {
+	r := &maps.ElevationRequest{
+		Locations: []maps.LatLng{
+			{Lat: lat, Lng: lng},
+		},
+	}
+
+	return c.Elevation(context.Background(), r)
+}
+
+func getWindSpeed(height float64, winds map[string]models.Wind) (float64, error) {
+	altitudes := []float64{15, 30, 50, 75, 100, 150, 200}
+
+	minH, maxH, err := getClosestPair(altitudes, height)
+	if err != nil {
+		return 0, err
+	}
+
+	ws := linearApproximation(height, minH, maxH, winds[fmt.Sprint(maxH)].WindSpeed, winds[fmt.Sprint(minH)].WindSpeed)
+	if minH == maxH {
+		ws = winds[fmt.Sprint(maxH)].WindSpeed
+	}
+
+	return ws, nil
+}
+
+func getWindDirection(height float64, winds map[string]models.Wind) (float64, error) {
+	altitudes := []float64{15, 30, 50, 75, 100, 150, 200}
+
+	minH, maxH, err := getClosestPair(altitudes, height)
+	if err != nil {
+		return 0, err
+	}
+
+	wd := linearApproximation(height, minH, maxH, winds[fmt.Sprint(maxH)].WindDirection, winds[fmt.Sprint(minH)].WindDirection)
+	if minH == maxH {
+		wd = winds[fmt.Sprint(maxH)].WindDirection
+	}
+
+	return wd, nil
+}
+
+func checkInclude(t1, t2 models.TurbineModel, radius float64) bool {
+
+	distance := getDistance(maps.LatLng{
+		Lat: t1.Latitude,
+		Lng: t1.Longitude,
+	},
+		maps.LatLng{
+			Lat: t2.Latitude,
+			Lng: t2.Longitude,
+		})
+
+	return distance < radius
+}
+
+func getDistance(p1, p2 maps.LatLng) float64 {
+	R := float64(6378137)
+	dLat := rad(p2.Lat - p1.Lat)
+	dLong := rad(p2.Lng - p1.Lng)
+
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Cos(rad(p1.Lat))*math.Cos(rad(p2.Lat))*
+			math.Sin(dLong/2)*math.Sin(dLong/2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	d := R * c
+	return d
+}
+
+func rad(x float64) float64 {
+	return x * math.Pi / 180
+}
+
+func shadingFactor(alpha, radius, distance float64) float64 {
+	if math.Cos(alpha) < 0 {
+		return 1
+	}
+	return ((1 - math.Cos(alpha)) * (1 - (distance / radius)))
+}
+
 func getClosestPair(arr []float64, number float64) (float64, float64, error) {
 	var res_l, res_r int
 
@@ -240,4 +352,10 @@ func getClosestPair(arr []float64, number float64) (float64, float64, error) {
 
 func linearApproximation(x, xmin, xmax, ymax, ymin float64) float64 {
 	return ymin + (((x - xmin) / (xmax - xmin)) * (ymax - ymin))
+}
+
+type shadingTurbine struct {
+	distance float64
+	radius   float64
+	turbine  models.TurbineModel
 }

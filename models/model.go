@@ -26,14 +26,17 @@ type TurbineModel struct {
 }
 
 type Production struct {
-	ProductionID   string  `json:"production_id,omitempty" db:"production_id"`
-	Time           string  `json:"time,omitempty" db:"time"`
-	Date           string  `json:"date,omitempty" db:"date"`
-	ICUF           float64 `json:"icuf" db:"icuf"`
-	Value          float64 `json:"value,omitempty" db:"value"`
-	WindSpeed      float64 `json:"wind_speed,omitempty" db:"wind_speed"`
-	TurbineModelID string  `json:"turbines_models_id" db:"turbines_models_id"`
-	Altitude       float64 `json:"altitude" db:"altitude"`
+	ProductionID     string  `json:"production_id,omitempty" db:"production_id"`
+	Time             string  `json:"time,omitempty" db:"time"`
+	Date             string  `json:"date,omitempty" db:"date"`
+	ICUF             float64 `json:"icuf" db:"icuf"`
+	Value            float64 `json:"value,omitempty" db:"value"`
+	WindSpeed        float64 `json:"wind_speed,omitempty" db:"wind_speed"`
+	TurbineModelID   string  `json:"turbines_models_id" db:"turbines_models_id"`
+	Altitude         float64 `json:"altitude" db:"altitude"`
+	WindDirection    float64 `json:"wind_direction" db:"wind_direction"`
+	Shading          float64 `json:"shading" db:"shading"`
+	SpeedWithShading float64 `json:"speed_with_shading" db:"speed_with_shading"`
 }
 
 type ModelMap struct {

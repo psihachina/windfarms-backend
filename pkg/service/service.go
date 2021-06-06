@@ -24,6 +24,13 @@ type Models interface {
 	Update(userID, windfarmID, modelID string, inputModel models.UpdateModelInput) error
 }
 
+// Users - ...
+type Users interface {
+	GetAll() ([]models.User, error)
+	Delete(email string) error
+	Confirm(email string) error
+}
+
 // Windfarms - ...
 type Windfarms interface {
 	Create(userID string, windfarm models.Windfarm) (string, error)
@@ -37,6 +44,7 @@ type Windfarms interface {
 type Turbines interface {
 	Create(userID string, turbine models.Turbine, outputs models.Outputs) (string, error)
 	GetAll(userID string) ([]models.Turbine, error)
+	GetMap(userID string) (map[string]models.Turbine, error)
 	GetByID(userID, turbineID string) (models.Turbine, error)
 	Delete(userID string, turbineID string) error
 	Update(userID string, turbineID string, input models.UpdateTurbineInput) error
@@ -57,6 +65,7 @@ type Service struct {
 	Winds
 	Turbines
 	Models
+	Users
 }
 
 // NewService - ...
@@ -70,5 +79,6 @@ func NewService(repos *repository.Repository) *Service {
 		Winds:         NewWindsService(repos.Winds, windfarmsService),
 		Turbines:      NewTurbinesService(repos.Turbines),
 		Models:        NewModelsService(repos.Models, turbinesService, windsService),
+		Users:         NewUsersService(repos.Users),
 	}
 }

@@ -44,6 +44,10 @@ func (s *AuthService) GenerateToken(email, password string) (string, error) {
 		return "", err
 	}
 
+	if !user.AdminConfirm {
+		return "", errors.New("admin_corfim")
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(tokenTTL).Unix(),

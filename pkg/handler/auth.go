@@ -50,7 +50,11 @@ func (h *Handler) signIn(c *gin.Context) {
 
 	token, err := h.services.Authorization.GenerateToken(input.Email, input.Password)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		if err.Error() == "admin_corfim" {
+			newErrorResponse(c, http.StatusForbidden, "This user is not confirm by the administrator. Wait or contact the administrator.")
+			return
+		}
+		newErrorResponse(c, http.StatusInternalServerError, "Invalid email or password.")
 		return
 	}
 

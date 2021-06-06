@@ -26,6 +26,22 @@ func (s *TurbinesService) GetAll(userID string) ([]models.Turbine, error) {
 	return s.repo.GetAll(userID)
 }
 
+// GetMap - ...
+func (s *TurbinesService) GetMap(userID string) (map[string]models.Turbine, error) {
+	turbines, err := s.repo.GetAll(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	mapTurbines := make(map[string]models.Turbine)
+
+	for _, item := range turbines {
+		mapTurbines[item.TurbineName] = item
+	}
+
+	return mapTurbines, err
+}
+
 // GetByID - ...
 func (s *TurbinesService) GetByID(userID, turbineID string) (models.Turbine, error) {
 	return s.repo.GetByID(userID, turbineID)

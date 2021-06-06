@@ -103,30 +103,33 @@ func (s *WindsService) Create(userID string, windfarmID string) error {
 			timeKeys := reflect.ValueOf(height).MapKeys()
 
 			for timeIndex, timeRange := range timeKeys {
-				var current float64
-				var next float64
+				var current models.Wind
+				var next models.Wind
 
 				t, err := time.Parse("15:04:05", timeRange.String())
 				if err != nil {
 					return err
 				}
 				if timeIndex != 3 {
-					current = height[timeRange.String()].WindSpeed
-					next = height[timeKeys[timeIndex+1].String()].WindSpeed
+					current = height[timeRange.String()]
+					next = height[timeKeys[timeIndex+1].String()]
 				} else if len(dateKeys) != dateIndex+1 {
-					current = height[timeRange.String()].WindSpeed
-					next = windRange[dateKeys[dateIndex+1].String()][heightKey][timeKeys[1].String()].WindSpeed
+					current = height[timeRange.String()]
+					next = windRange[dateKeys[dateIndex+1].String()][heightKey][timeKeys[1].String()]
 				} else {
 					continue
 				}
-				step := (next - current) / 6
+				stepWindSpeed := (next.WindSpeed - current.WindSpeed) / 6
+				stepDirection := (next.WindDirection - current.WindDirection) / 6
 
 				for i := 1; i < 6; i++ {
 					newItem := height[timeRange.String()]
 					t = t.Add(time.Hour)
 					newItem.Time = t.Format("15:04:05")
-					newItem.WindSpeed += float64(i) * step
+					newItem.WindSpeed += float64(i) * stepWindSpeed
+					newItem.WindDirection += float64(i) * stepDirection
 					newItem.WindSpeed = math.Round(newItem.WindSpeed*100000) / 100000
+					newItem.WindDirection = math.Round(newItem.WindDirection*1000) / 1000
 					winds = append(winds, newItem)
 				}
 

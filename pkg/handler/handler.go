@@ -31,6 +31,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.POST("/sing-in", h.signIn)
 	}
 
+	users := router.Group("/users")
+	{
+		users.GET("/", h.getAllUsers)
+		users.PUT("/:email", h.confirmUser)
+		users.DELETE("/:email", h.deleteUser)
+	}
+
 	api := router.Group("/api", h.userIdentity)
 	{
 		windfarms := api.Group("/windfarms")
