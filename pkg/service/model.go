@@ -122,6 +122,10 @@ func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model 
 						shading = shadingFactor(alpha, shadingTurbines[j].radius, shadingTurbines[j].distance)
 					}
 
+					if len(shadingTurbines) == 0 {
+						shading = 1
+					}
+
 					outputMap := make(map[string]models.Output)
 
 					for _, item := range turbine.Outputs {
