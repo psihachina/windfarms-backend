@@ -71,7 +71,7 @@ func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model 
 			log.Fatal(err)
 		}
 
-		height := model.WindfarmAltitude - elevations[0].Elevation + turbine.TowerHeight
+		height := turbine.TowerHeight - (model.WindfarmAltitude - elevations[0].Elevation)
 
 		wg.Add(1)
 
