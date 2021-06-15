@@ -22,7 +22,7 @@ func NewWindfarmsService(repo repository.Windfarms) *WindfarmsService {
 	return &WindfarmsService{repo: repo}
 }
 
-// Create - ...
+// Create - function create windfarm
 func (s *WindfarmsService) Create(userID string, windfarm models.Windfarm) (string, error) {
 
 	c, err := maps.NewClient(maps.WithAPIKey(os.Getenv("GOOGLE_MAPS_API_KEY")))

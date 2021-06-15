@@ -31,12 +31,11 @@ func (r *TurbinePostgres) Create(userID string, turbine models.Turbine, outputs 
 
 	createTurbineQuery := fmt.Sprintf(`
 		INSERT INTO %s (user_id, turbine_name, maximum_power, max_wind_speed,
-		min_wind_speed, rotor_diameter, tower_height, number_blades, annual_turbine_maintenance) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING turbine_id`, turbinesTable)
+		min_wind_speed, rotor_diameter, tower_height, number_blades) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING turbine_id`, turbinesTable)
 	row := tx.QueryRow(createTurbineQuery, userID, turbine.TurbineName,
 		turbine.MaximumPower, turbine.MaxWindSpeed, turbine.MinWindSpeed,
-		turbine.RotorDiameter, turbine.TowerHeight, turbine.Blades,
-		turbine.AnnualTurbineMaintenance)
+		turbine.RotorDiameter, turbine.TowerHeight, turbine.Blades)
 	if err := row.Scan(&id); err != nil {
 		tx.Rollback()
 		return "", err

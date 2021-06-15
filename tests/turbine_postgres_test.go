@@ -87,14 +87,13 @@ func randomTurbine(emptyName bool) models.Turbine {
 		name = utils.RandomString(6)
 	}
 	return models.Turbine{
-		TurbineName:              name,
-		MaximumPower:             float64(utils.RandomInt(1, 1000)),
-		MaxWindSpeed:             float64(utils.RandomInt(1, 1000)),
-		MinWindSpeed:             float64(utils.RandomInt(1, 1000)),
-		Blades:                   utils.RandomInt(1, 1000),
-		TowerHeight:              float64(utils.RandomInt(1, 1000)),
-		RotorDiameter:            float64(utils.RandomInt(1, 1000)),
-		AnnualTurbineMaintenance: float64(utils.RandomInt(1, 1000)),
+		TurbineName:   name,
+		MaximumPower:  float64(utils.RandomInt(1, 1000)),
+		MaxWindSpeed:  float64(utils.RandomInt(1, 1000)),
+		MinWindSpeed:  float64(utils.RandomInt(1, 1000)),
+		Blades:        utils.RandomInt(1, 1000),
+		TowerHeight:   float64(utils.RandomInt(1, 1000)),
+		RotorDiameter: float64(utils.RandomInt(1, 1000)),
 	}
 }
 

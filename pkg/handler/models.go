@@ -74,7 +74,6 @@ func (h *Handler) getModelsMap(c *gin.Context) {
 
 	c.JSON(http.StatusOK, model)
 }
-
 func (h *Handler) generateModel(c *gin.Context) {
 	userID, err := getUserID(c)
 	if err != nil {

@@ -43,6 +43,18 @@ func (r *ModelPostgres) CreateModel(userID string, windfarmID string, model mode
 func (r *ModelPostgres) GenerateModel(userID, windfarmID, modelID string, model models.Model) (string, error) {
 	var wg sync.WaitGroup
 
+	updateModelQuery := fmt.Sprintf(`
+		UPDATE %s m SET value = $1, icuf = $2 
+		FROM %s uw WHERE uw.windfarm_id = m.windfarm_id 
+		AND uw.windfarm_id = $3
+		AND m.model_id=$4 
+		AND uw.user_id=$5`, modelTable, usersWindfarmsTable)
+
+	_, err := r.db.Exec(updateModelQuery, model.Value, model.ICUF, windfarmID, modelID, userID)
+	if err != nil {
+		return "", err
+	}
+
 	for _, turbine := range model.Turbines {
 		t := turbine
 		wg.Add(1)
@@ -50,8 +62,9 @@ func (r *ModelPostgres) GenerateModel(userID, windfarmID, modelID string, model 
 		go func(t models.TurbineModel) {
 			defer wg.Done()
 
-			createTurbineModelQuery := fmt.Sprintf("INSERT INTO %s (turbines_models_id ,model_id, turbine_name, latitude, longitude, x, y, z) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (turbines_models_id) DO NOTHING", trubinesModelsTabel)
-			_, err := r.db.Exec(createTurbineModelQuery, t.TurbineModelID, modelID, t.TurbineName, t.Latitude, t.Longitude, t.X, t.Y, t.Z)
+			createTurbineModelQuery := fmt.Sprintf(`INSERT INTO %s (turbines_models_id ,model_id, turbine_name, latitude, longitude, x, y, z, value, icuf) 
+													VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (turbines_models_id) DO NOTHING`, trubinesModelsTabel)
+			_, err := r.db.Exec(createTurbineModelQuery, t.TurbineModelID, modelID, t.TurbineName, t.Latitude, t.Longitude, t.X, t.Y, t.Z, t.Value, t.ICUF)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -59,7 +72,8 @@ func (r *ModelPostgres) GenerateModel(userID, windfarmID, modelID string, model 
 			var values string
 
 			for _, production := range t.Productions {
-				values += fmt.Sprintf(`('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v'),`,
+				values += fmt.Sprintf(`('%v', '%v', '%v', '%v', '%v', 
+										'%v', '%v', '%v', '%v', '%v'),`,
 					production.Value, production.ICUF, production.WindSpeed,
 					production.Date, production.Time, t.TurbineModelID,
 					production.Altitude, production.WindDirection, production.Shading, production.SpeedWithShading)

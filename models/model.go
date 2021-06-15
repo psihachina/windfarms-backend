@@ -9,6 +9,9 @@ type Model struct {
 	ModelID          string         `json:"model_id" db:"model_id"`
 	WindfarmAltitude float64        `json:"windfarm_altitude"`
 	ModelName        string         `json:"model_name" db:"model_name"`
+	Value            float64        `json:"value" db:"value"`
+	ICUF             float64        `json:"icuf" db:"icuf"`
+	CreatedAt        string         `json:"created_at" db:"created_at"`
 	WindfarmID       string         `json:"windfarm_id" db:"windfarm_id"`
 	Turbines         []TurbineModel `json:"turbines,omitempty" db:"turbines"`
 }
@@ -18,6 +21,8 @@ type TurbineModel struct {
 	TurbineName    string      `json:"turbine_name," db:"turbine_name"`
 	Latitude       float64     `json:"latitude," db:"latitude"`
 	Longitude      float64     `json:"longitude," db:"longitude"`
+	Value          float64     `json:"value" db:"value"`
+	ICUF           float64     `json:"icuf" db:"icuf"`
 	ModelID        string      `json:"model_id" db:"model_id"`
 	X              float64     `json:"x" db:"x"`
 	Y              float64     `json:"y" db:"y"`

@@ -2,6 +2,6 @@ port: "3000"
 
 db:
     host:     "81.91.178.100"
-    port:     "5432"
+    port:     "5433"
     dbname:   "psihachina"
     sslmode:  "disable"

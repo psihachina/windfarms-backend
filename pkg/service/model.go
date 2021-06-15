@@ -32,6 +32,10 @@ func (s *ModelsService) CreateModel(userID string, windfarmID string, model mode
 // GenerateModel - ...
 func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model models.Model) (string, error) {
 
+	var modelSummary float64
+	var modelCounter int
+	var modelSummaryIcuf float64
+
 	turbines, err := s.turbinesService.GetMap(userID)
 	if err != nil {
 		log.Fatal(err)
@@ -78,11 +82,17 @@ func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model 
 		go func(i int, turbine models.Turbine) {
 			defer wg.Done()
 
-			var shadingTurbines []shadingTurbine
+			var turbineSummary float64
+			var turbineCounter int
+			var turbineSummaryIcuf float64
 
+			var shadingT shadingTurbine
+			minDistance := math.Inf(1)
 			for j := 0; j < len(model.Turbines); j++ {
-				if i != j && checkInclude(model.Turbines[i], model.Turbines[j], 3*turbines[model.Turbines[j].TurbineName].RotorDiameter) {
-					shadingTurbines = append(shadingTurbines, shadingTurbine{
+				isInclude, distanse := checkInclude(model.Turbines[i], model.Turbines[j], 3*turbines[model.Turbines[j].TurbineName].RotorDiameter)
+				if i != j && isInclude && distanse < minDistance {
+					minDistance = distanse
+					shadingT = shadingTurbine{
 						distance: getDistance(
 							maps.LatLng{
 								Lat: model.Turbines[i].Latitude,
@@ -92,12 +102,16 @@ func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model 
 								Lat: model.Turbines[j].Latitude,
 								Lng: model.Turbines[j].Longitude,
 							}),
-
 						radius:  3 * turbines[model.Turbines[j].TurbineName].RotorDiameter,
 						turbine: model.Turbines[j],
-					})
+					}
 				}
 			}
+
+			fmt.Println(math.Atan2(
+				model.Turbines[i].Latitude-shadingT.turbine.Latitude,
+				model.Turbines[i].Longitude-shadingT.turbine.Longitude,
+			)*57.2958, i)
 
 			for date := range windMap {
 				for time := range windMap[date] {
@@ -114,15 +128,16 @@ func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model 
 
 					var shading float64
 
-					for j := 0; j < len(shadingTurbines); j++ {
-						alpha := windDirection - math.Atan2(
-							model.Turbines[i].Latitude-shadingTurbines[j].turbine.Latitude,
-							model.Turbines[i].Longitude-shadingTurbines[j].turbine.Longitude,
-						)
-						shading = shadingFactor(alpha, shadingTurbines[j].radius, shadingTurbines[j].distance)
-					}
+					angle := math.Atan2(
+						shadingT.turbine.Y-model.Turbines[i].Y,
+						shadingT.turbine.X-model.Turbines[i].X,
+					) * 57.2958
 
-					if len(shadingTurbines) == 0 {
+					alpha := math.Abs(windDirection - float64((int(angle)+360)%360))
+					fmt.Println(alpha, shadingT.radius, shadingT.distance)
+					shading = shadingFactor(alpha, shadingT.radius, shadingT.distance)
+
+					if shadingT.distance == 0 {
 						shading = 1
 					}
 
@@ -154,16 +169,18 @@ func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model 
 					}
 
 					output := linearApproximation(speedWithShading, minSpeed, maxSpeed, outputMap[fmt.Sprint(maxSpeed)].Production, outputMap[fmt.Sprint(minSpeed)].Production)
+					icuf := output / turbine.MaximumPower
 
-					if math.IsNaN(output) {
+					if math.IsNaN(output) || output == 0 {
 						output = 0
+						icuf = 0
 					}
 
 					production := models.Production{
 						Time:             time,
 						Date:             date,
 						Value:            output,
-						ICUF:             output / turbine.MaximumPower,
+						ICUF:             icuf,
 						WindSpeed:        windSpeed,
 						Altitude:         height,
 						TurbineModelID:   model.Turbines[i].TurbineModelID,
@@ -172,12 +189,29 @@ func (s *ModelsService) GenerateModel(userID, windfarmID, modelID string, model 
 						SpeedWithShading: speedWithShading,
 					}
 
+					turbineSummary += output
+					turbineSummaryIcuf += icuf
+					turbineCounter++
+
 					model.Turbines[i].Productions = append(model.Turbines[i].Productions, &production)
 				}
 			}
+
+			model.Turbines[i].Value = turbineSummary
+			model.Turbines[i].ICUF = turbineSummaryIcuf / float64(turbineCounter)
+
+			modelSummary += model.Turbines[i].Value
+			modelSummaryIcuf += model.Turbines[i].ICUF
+			modelCounter++
+
 		}(i, turbine)
 	}
+
 	wg.Wait()
+
+	model.Value = modelSummary
+	fmt.Println(modelCounter)
+	model.ICUF = modelSummaryIcuf / float64(modelCounter)
 	return s.repo.GenerateModel(userID, windfarmID, modelID, model)
 }
 
@@ -277,7 +311,7 @@ func getWindDirection(height float64, winds map[string]models.Wind) (float64, er
 	return wd, nil
 }
 
-func checkInclude(t1, t2 models.TurbineModel, radius float64) bool {
+func checkInclude(t1, t2 models.TurbineModel, radius float64) (bool, float64) {
 
 	distance := getDistance(maps.LatLng{
 		Lat: t1.Latitude,
@@ -288,7 +322,7 @@ func checkInclude(t1, t2 models.TurbineModel, radius float64) bool {
 			Lng: t2.Longitude,
 		})
 
-	return distance < radius
+	return distance < radius, distance
 }
 
 func getDistance(p1, p2 maps.LatLng) float64 {
@@ -309,10 +343,10 @@ func rad(x float64) float64 {
 }
 
 func shadingFactor(alpha, radius, distance float64) float64 {
-	if math.Cos(alpha) < 0 {
+	if math.Cos(alpha) <= 0 {
 		return 1
 	}
-	return ((1 - math.Cos(alpha)) * (1 - (distance / radius)))
+	return (1 - (math.Cos(alpha) * (1 - (distance / radius))))
 }
 
 func getClosestPair(arr []float64, number float64) (float64, float64, error) {
